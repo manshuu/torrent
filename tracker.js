@@ -2,21 +2,33 @@ import dgram from 'dgram';
 import { Buffer } from 'buffer';
 import { URL} from 'url';
 import crypto from 'crypto';
-import { genId } from './util';
+import { genId } from './util.js';
+import { error } from 'console';
 // 1. Send a connect request
 // 2. Get the connect response and extract the connection id
 // 3. Use the connection id to send an announce request - this is where we tell the tracker which files we’re interested in
 // 4. Get the announce response and extract the peers list
 
 export function getPeers(torrent, callabck) {
-    const socket = dgram.createSocket('ud4');
-    const url = torrent.annouce;
-
+    const socket = dgram.createSocket('udp4');
+    const url = torrent.announce;
+    console.log(typeof url);
     // 1.send connectio requst
     udpSend(socket, buildConnReq(), url);
 
     socket.on('massage', response => {
-            
+        if (respType(response)  === "conenct") {
+            // 2 
+            const connResp = parseConnResp(response);
+            // 3 
+            const announceReq = buildAnnounceReq(connResp.connectionId);
+            udpSend(socket, announceRe, url);
+        }
+        else if (respType(response) === "announce") {
+            // 4
+            const announceResp = parseAnnounceResp(response);
+            callabck(announceResp.peers);
+        }
     })
 
 }
@@ -28,18 +40,26 @@ function udpSend(socket, massage, rawUrl, callabck = () => {}) {
 }
 
 function respType(resp) {
-    // ...
+    if (resp.action === 0) {
+        return "connect";
+    }
+    else if (resp.action === 1) {
+        return "announce";
+    }
+    else {
+        throw new error("Invalid response type");
+    }
 }
 
 function buildConnReq() {
-    const bud = Buffer.alloc(16);
+    const buf = Buffer.alloc(16);
 
     //connection id = 0x41727101980 == 8 bytes (4 + 4)
     buf.writeUint32BE(0x417, 0);
     buf.writeUint32BE(0x27101980, 4);
 
     // action connect = 0, 4-bytes 
-    bud.writeInt32BE(0, 8);
+    buf.writeInt32BE(0, 8);
 
     // trasaction id 
     crypto.randomBytes(4).copy(buf, 12);
@@ -49,7 +69,7 @@ function buildConnReq() {
 
 function parseConnResp(resp) {
     return {
-        action: resp.readUint32BE(0),
+        action: resp.readUint32BE(0), 
         trasactionId: resp.readUint32BE(4),
         connectionId: resp.slice(8)
     }
