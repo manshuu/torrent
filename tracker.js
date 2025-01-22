@@ -1,9 +1,7 @@
 import dgram from 'dgram';
 import { Buffer } from 'buffer';
-import { URL } from 'url';
+import { URL} from 'url';
 import crypto from 'crypto';
-
-
 import { genId } from './util';
 // 1. Send a connect request
 // 2. Get the connect response and extract the connection id
@@ -12,9 +10,14 @@ import { genId } from './util';
 
 export function getPeers(torrent, callabck) {
     const socket = dgram.createSocket('ud4');
-    const rawUrl = torrent.annouce;
+    const url = torrent.annouce;
 
     // 1.send connectio requst
+    udpSend(socket, buildConnReq(), url);
+
+    socket.on('massage', response => {
+            
+    })
 
 }
 
@@ -26,9 +29,9 @@ function udpSend(socket, massage, rawUrl, callabck = () => {}) {
 
 function respType(resp) {
     // ...
-  }
-  
-  function buildConnReq() {
+}
+
+function buildConnReq() {
     const bud = Buffer.alloc(16);
 
     //connection id = 0x41727101980 == 8 bytes (4 + 4)
@@ -42,18 +45,18 @@ function respType(resp) {
     crypto.randomBytes(4).copy(buf, 12);
 
     return buf;
-  }
-  
-  function parseConnResp(resp) {
+}
+
+function parseConnResp(resp) {
     return {
-        action : resp.readUint32BE(0),
-        trasactionId : resp.readUint32BE(4),
-        connectionId : resp.slice(8)
+        action: resp.readUint32BE(0),
+        trasactionId: resp.readUint32BE(4),
+        connectionId: resp.slice(8)
     }
-  }
-  
-  // port = between 6881 and 6889
-  function buildAnnounceReq(connId, torrent, port=6881) {
+}
+
+// port = between 6881 and 6889
+function buildAnnounceReq(connId, torrent, port = 6881) {
     let buf = Buffer.allocUnsafe(98);
 
     // coonnection_id = 8-bytes, 0 
@@ -96,9 +99,9 @@ function respType(resp) {
     buf.writeUInt16BE(port, 96);
 
     return buf;
-  }
-  
-  function parseAnnounceResp(resp) {
+}
+
+function parseAnnounceResp(resp) {
 
     function group(interable, groupSize) {
         let groups = []
@@ -109,16 +112,16 @@ function respType(resp) {
     }
 
     return {
-        action : resp.readUint32BE(0), // 4-bytes, 0
-        trasactionId : resp.readUint32BE(4), // 4- bytes, 4
-        interval : resp.readUint32BE(8), // 4-bytes, 8
-        leechers : resp.readUint32BE(12), // 4-bytes, 12 
-        seeders : resp.readUint32BE(16), // 4-bytes, 16
-        peers : group(resp.slice(20), 6).map(address => {
+        action: resp.readUint32BE(0), // 4-bytes, 0
+        trasactionId: resp.readUint32BE(4), // 4- bytes, 4
+        interval: resp.readUint32BE(8), // 4-bytes, 8
+        leechers: resp.readUint32BE(12), // 4-bytes, 12 
+        seeders: resp.readUint32BE(16), // 4-bytes, 16
+        peers: group(resp.slice(20), 6).map(address => {
             return {
-                ip : address.slice(0, 4).join('.'),
-                port : address.readUint16BE(4)
+                ip: address.slice(0, 4).join('.'),
+                port: address.readUint16BE(4)
             }
         })
     }
-  }
+}
