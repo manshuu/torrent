@@ -4,7 +4,7 @@ import { getPeers } from "./tracker.js";
 import { open } from "./torrent-parser.js";
 
 
-const torrent = open("pupppy.torrent");
+const torrent = open("demo.torrent");
 console.log(torrent);
 
 getPeers(torrent, peers => {

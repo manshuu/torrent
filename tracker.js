@@ -1,6 +1,6 @@
 import dgram from 'dgram';
 import { Buffer } from 'buffer';
-import { URL} from 'url';
+import { URL } from 'url';
 import crypto from 'crypto';
 import { genId } from './util.js';
 import { error } from 'console';
@@ -22,7 +22,7 @@ export function getPeers(torrent, callabck) {
             const connResp = parseConnResp(response);
             // 3 
             const announceReq = buildAnnounceReq(connResp.connectionId);
-            udpSend(socket, announceRe, url);
+            udpSend(socket, announceReq, url);
         }
         else if (respType(response) === "announce") {
             // 4
@@ -77,7 +77,7 @@ function parseConnResp(resp) {
 
 // port = between 6881 and 6889
 function buildAnnounceReq(connId, torrent, port = 6881) {
-    let buf = Buffer.allocUnsafe(98);
+    const buf = Buffer.allocUnsafe(98);
 
     // coonnection_id = 8-bytes, 0 
     connId.copy(buf, 0);
