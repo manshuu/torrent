@@ -8,15 +8,16 @@ export function open(filepath) {
 }
 
 export function size(torrent) {
-    const size = (torrent.info.files ? torrent.info.files.map(file => file.length).reduce((accu, curr) => { accu + curr }, 0) : torrent.info.length);
+    let size = (torrent.info.files != undefined) ? torrent.info.files.map(file => file.length).reduce((accu, curr) => accu + curr , 0) : torrent.info.length;
+    const sizeBigInt = BigInt(size);
     const buf = Buffer.alloc(8);
-    buf.writeBigUint64BE(BigInt(size), 0);
+    buf.writeBigUInt64BE(sizeBigInt);
     return buf;
 }
 
 export function infoHash(torrent) {
-    const info = torrent.info;
+    const info = bencode.encode(torrent.info);
     const hash = crypto.createHash("sha1").update(info).digest();
-    console.log(hash);
+    console.log("string infohash : ", crypto.createHash("sha1").update(info.toString()).digest());
     return hash;
 }

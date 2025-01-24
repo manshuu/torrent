@@ -17,11 +17,12 @@ export function getPeers(torrent, callabck) {
     udpSend(socket, buildConnReq(), url);
 
     socket.on('massage', response => {
+        console.log("something came response");
         if (respType(response)  === "conenct") {
             // 2 
             const connResp = parseConnResp(response);
             // 3 
-            const announceReq = buildAnnounceReq(connResp.connectionId);
+            const announceReq = buildAnnounceReq(connResp.connectionId, torrent);
             udpSend(socket, announceReq, url);
         }
         else if (respType(response) === "announce") {
@@ -37,18 +38,13 @@ export function getPeers(torrent, callabck) {
 function udpSend(socket, massage, rawUrl, callabck = () => {}) {
     const url = new URL(rawUrl);
     socket.send(massage, 0, massage.length, url.port, url.host, callabck);
+    console.log("req massage sent");
 }
 
 function respType(resp) {
-    if (resp.action === 0) {
-        return "connect";
-    }
-    else if (resp.action === 1) {
-        return "announce";
-    }
-    else {
-        throw new error("Invalid response type");
-    }
+    const action = resp.readUInt32BE(0);
+    if (action === 0) return 'connect';
+    if (action === 1) return 'announce';
 }
 
 function buildConnReq() {
