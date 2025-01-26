@@ -5,17 +5,8 @@ import { infoHash, open, size } from "./torrent-parser.js";
 import { genId } from './util.js';
 
 
-const torrent = open("puppy.torrent");
+const torrent = open("Wicked.torrent");
 // console.log("torrent:", torrent);
-
-const info = infoHash(torrent);
-console.log("infoHash:", info);
-
-const tSize = size(torrent);
-console.log("size:", tSize);
-
-const id = genId();
-console.log("id:", id);
 
 getPeers(torrent, peers => {
     console.log('List of peers', peers);

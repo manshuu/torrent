@@ -18,6 +18,5 @@ export function size(torrent) {
 export function infoHash(torrent) {
     const info = bencode.encode(torrent.info);
     const hash = crypto.createHash("sha1").update(info).digest();
-    console.log("string infohash : ", crypto.createHash("sha1").update(info.toString()).digest());
     return hash;
 }
