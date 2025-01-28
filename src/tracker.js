@@ -44,6 +44,7 @@ function getPeers(torrent, callabck) {
         else if (respType(response) === "announce") {
             // 4
             const announceResp = parseAnnounceResp(response);
+            console.log(announceResp);
             peers.push(...announceResp.peers);
         }
     })
