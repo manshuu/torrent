@@ -24,7 +24,7 @@ function buildHandShake(torrent) {
     return buf;
 }
 
-const keepAlive = () => Buffer.alloc(4);
+const buildKeepAlive = () => Buffer.alloc(4);
 
 function buildChoke() {
     const buf = Buffer.alloc(5);
@@ -172,4 +172,18 @@ function buildPort(payload) {
     return buf;
 }
 
-export { buildHandShake, buildChoke };
+export { 
+    buildHandShake, 
+    buildChoke, 
+    buildInterested, 
+    buildNotInterested,
+    buildHave,
+    buildCancel,
+    buildPiece,
+    buildPort,
+    buildRequest,
+    buildChoke,
+    buildUnChoke,
+    buildBitfield,
+    buildKeepAlive
+};
