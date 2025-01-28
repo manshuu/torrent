@@ -1,6 +1,7 @@
 import net from "net";
 import { getPeers } from "./tracker.js";
 import { buildHandShake, buildInterested } from "./message.js";
+import { parse } from "path";
 
 export default function(torrent) {
     getPeers(torrent, peers => {
@@ -40,7 +41,32 @@ function onWholeMsg(socket, callback) {
 }
 
 function msgHandler(msg, socket) {
-    if (isHandShake(msg)) socket.write(buildInterested());
+    if (isHandShake(msg)) {
+        socket.write(buildInterested())
+    }
+    else {
+        const m = parse(msg);
+        
+        switch (m.id) {
+            case 0:
+                chokeHandler();
+                break;
+            case 1:
+                unChokeHandler();
+                break;
+            case 4:
+                haveHandler();
+                break;
+            case 5:
+                bitfieldHandler();
+                break;
+            case 7:
+                pieceHandler();
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 function isHandShake(msg) {

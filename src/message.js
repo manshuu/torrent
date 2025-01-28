@@ -131,10 +131,10 @@ function buildPiece(payload) {
     // peice number 4 bytes 
     buf.writeUint32BE(payload.index, 5);
 
-    // offset within peice 
+    // begin
     buf.writeUint32BE(payload.begin, 9);
 
-    // number of bytes requested 
+    // block of hash 
     payload.block.copy(buf, 13);
 
     return buf;
@@ -172,6 +172,27 @@ function buildPort(payload) {
     return buf;
 }
 
+
+function parse(msg) {
+    const id = msg.length > 4 ? msg.readUint(4) : null;
+    const payload = msg.length > 5 ? msg.slice(5) : null;
+
+    if (id === 6 || id === 7 || id == 8) {
+        const rest = payload.slice(8);
+        payload = {
+            index : payload.readUint32BE(0),
+            begin : payload.readUint32BE(4)        
+        };
+        payload[id === 7 ? 'block' : 'length'] = rest;
+    }
+
+    return {
+        size : msg.readUint32BE(0),
+        id : id,
+        payload : payload
+    }
+}
+
 export { 
     buildHandShake, 
     buildChoke, 
@@ -182,8 +203,8 @@ export {
     buildPiece,
     buildPort,
     buildRequest,
-    buildChoke,
     buildUnChoke,
     buildBitfield,
-    buildKeepAlive
+    buildKeepAlive, 
+    parse
 };
