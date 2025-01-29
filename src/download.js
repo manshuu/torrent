@@ -61,8 +61,8 @@ function msgHandler(msg, socket) {
                 bitfieldHandler();
                 break;
             case 7:
-                pieceHandler();
-                break;
+                chokeHandler();
+                break;                    
             default:
                 break;
         }
