@@ -205,6 +205,5 @@ export {
     buildRequest,
     buildUnChoke,
     buildBitfield,
-    buildKeepAlive, 
-    parse
+    buildKeepAlive
 };
